@@ -18,7 +18,9 @@
     },
       
     loadResources: function () {
-      this.load.image('player', 'assets/player.png');
+      this.load.image('colourBlue', 'assets/cm_blue.png');
+      this.load.image('colourRed', 'assets/cm_red.png');
+      this.load.image('colourYellow', 'assets/cm_yellow.png');
       this.load.bitmapFont('minecraftia', 'assets/minecraftia.png', 'assets/minecraftia.xml');
     },
 

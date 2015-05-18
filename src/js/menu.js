@@ -13,7 +13,7 @@
         , y = this.game.height / 2;
 
 
-      this.titleTxt = this.add.bitmapText(x, y, 'minecraftia', 'Example Game' );
+      this.titleTxt = this.add.bitmapText(x, y, 'minecraftia', 'Colour mixers' );
       this.titleTxt.align = 'center';
       this.titleTxt.x = this.game.width / 2 - this.titleTxt.textWidth / 2;
 
