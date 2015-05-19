@@ -1,24 +1,18 @@
 {
-  "bitwise": true,
-  "laxcomma": true,
   "camelcase": true,
   "curly": true,
   "eqeqeq": true,
-  "forin": true,
-  "immed": true,
-  "latedef": true,
-  "newcap": true,
+  "indent": 2,
   "noarg": true,
-  "nonew": false,
-  "quotmark": "single",
+  "nonew": true,
   "undef": true,
   "unused": true,
-  "devel": true,
   "trailing": true,
-  "browser": true,
   "sub": true,
-  "debug": true,
+  "white": true,
   "globals": {
-    "Phaser": false
+    "window": true,
+    "require": true,
+    "module": true
   }
 }

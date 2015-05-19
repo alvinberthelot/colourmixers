@@ -11,6 +11,9 @@ var gulp = require('gulp')
   , connect = require('gulp-connect')
   , paths;
 
+var browserify = require('browserify');
+var source = require('vinyl-source-stream');
+
 paths = {
   assets: 'src/assets/**/*',
   css:    'src/css/*.css',
@@ -37,13 +40,30 @@ gulp.task('copy-vendor', ['clean'], function () {
     .on('error', gutil.log);
 });
 
-gulp.task('uglify', ['clean','lint'], function () {
+gulp.task('lint', function () {
+  return gulp.src(paths.js)
+    .pipe(jshint('.jshintrc'))
+    .pipe(jshint.reporter('default'))
+    .on('error', function () {
+      console.warn('Error: JSHint encountered an error');
+    });
+});
+
+gulp.task('compile', ['clean', 'lint'], function () {
+  var bundleStream = browserify('./src/js/base.js').bundle();
+
+  bundleStream
+    .pipe(source('bundle.js'))
+    .pipe(gulp.dest(paths.dist + '/js'));
+});
+
+/*gulp.task('uglify', ['clean','lint'], function () {
   gulp.src(paths.js)
     .pipe(concat('main.min.js'))
     .pipe(gulp.dest(paths.dist))
     .pipe(uglify({outSourceMaps: false}))
     .pipe(gulp.dest(paths.dist));
-});
+});*/
 
 gulp.task('minifycss', ['clean'], function () {
  gulp.src(paths.css)
@@ -70,13 +90,6 @@ gulp.task('minifyhtml', ['clean'], function() {
     .on('error', gutil.log);
 });
 
-gulp.task('lint', function() {
-  gulp.src(paths.js)
-    .pipe(jshint('.jshintrc'))
-    .pipe(jshint.reporter('default'))
-    .on('error', gutil.log);
-});
-
 gulp.task('html', function(){
   gulp.src('src/*.html')
     .pipe(connect.reload())
@@ -85,16 +98,16 @@ gulp.task('html', function(){
 
 gulp.task('connect', function () {
   connect.server({
-    root: [__dirname + '/src'],
+    root: [__dirname + '/dist'],
     port: 9000,
     livereload: true
   });
 });
 
 gulp.task('watch', function () {
-  gulp.watch(paths.js, ['lint']);
+  gulp.watch(paths.js, ['lint', 'compile']);
   gulp.watch(['./src/index.html', paths.css, paths.js], ['html']);
 });
 
 gulp.task('default', ['connect', 'watch']);
-gulp.task('build', ['copy-assets', 'copy-vendor', 'uglify', 'minifycss', 'processhtml', 'minifyhtml']);
+gulp.task('build', ['copy-assets', 'copy-vendor', 'compile', 'minifycss', 'processhtml', 'minifyhtml']);
