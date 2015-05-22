@@ -14,6 +14,7 @@ module.exports = {
     this.scoreRed = 0;
     this.scoreYellow = 0;
 
+    this.sound1 = game.add.audio('sound1');
 
     var x = 20/*this.game.width / 2*/,
       y = this.game.height / 4;
@@ -53,6 +54,8 @@ module.exports = {
     } else if (this.gamepad.right.isDown) {
         this.scoreYellow++;
         this.scoreTextYellow.text = localisation[game.language].mainGame.labelScore + this.scoreYellow;
+
+        this.sound1.play();
     }
 
   },

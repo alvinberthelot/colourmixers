@@ -22,6 +22,8 @@ module.exports = {
     this.load.image('colourRed', 'assets/cm_red.png');
     this.load.image('colourYellow', 'assets/cm_yellow.png');
     this.load.bitmapFont('minecraftia', 'assets/minecraftia.png', 'assets/minecraftia.xml');
+
+    this.load.audio('sound1', 'assets/sounds/sound1.ogg');
   },
 
   create: function () {
