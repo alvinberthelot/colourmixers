@@ -1,7 +1,6 @@
 var gulp = require('gulp')
   , gutil = require('gulp-util')
   , del = require('del')
-  , concat = require('gulp-concat')
   , rename = require('gulp-rename')
   , minifycss = require('gulp-minify-css')
   , minifyhtml = require('gulp-minify-html')
@@ -10,6 +9,9 @@ var gulp = require('gulp')
   , uglify = require('gulp-uglify')
   , connect = require('gulp-connect')
   , paths;
+
+var browserSync = require('browser-sync');
+var reload = browserSync.reload;
 
 var browserify = require('browserify');
 var source = require('vinyl-source-stream');
@@ -54,7 +56,8 @@ gulp.task('compile', ['clean', 'lint'], function () {
 
   bundleStream
     .pipe(source('bundle.js'))
-    .pipe(gulp.dest(paths.dist + '/js'));
+    .pipe(gulp.dest(paths.dist + '/js'))
+    .pipe(reload({stream: true}));
 });
 
 /*gulp.task('uglify', ['clean','lint'], function () {
@@ -96,18 +99,18 @@ gulp.task('html', function(){
     .on('error', gutil.log);
 });
 
-gulp.task('connect', function () {
-  connect.server({
-    root: [__dirname + '/dist'],
-    port: 9000,
-    livereload: true
+
+gulp.task('serve', ['build'], function() {
+
+  browserSync({
+    server: {
+      baseDir: paths.dist
+    }
   });
+
+  gulp.watch(paths.js, ['build']);
+  gulp.watch(paths.css, ['build']);
 });
 
-gulp.task('watch', function () {
-  gulp.watch(paths.js, ['lint', 'compile']);
-  gulp.watch(['./src/index.html', paths.css, paths.js], ['html']);
-});
-
-gulp.task('default', ['connect', 'watch']);
+gulp.task('default', ['serve']);
 gulp.task('build', ['copy-assets', 'copy-vendor', 'compile', 'minifycss', 'processhtml', 'minifyhtml']);

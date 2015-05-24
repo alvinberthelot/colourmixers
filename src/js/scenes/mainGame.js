@@ -17,6 +17,7 @@ module.exports = {
     this.scoreYellow = 0;
 
     this.sound1 = game.add.audio('sound1');
+    this.sound1 = game.add.audio('sound1');
 
 
     this.colours = [

@@ -7,6 +7,7 @@
   "dependencies": {},
   "devDependencies": {
     "bower": "*",
+    "browser-sync": "^2.7.4",
     "browserify": "^10.2.0",
     "browserify-shim": "^3.8.6",
     "del": "*",
