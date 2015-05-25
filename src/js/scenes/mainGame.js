@@ -17,53 +17,52 @@ module.exports = {
     this.scoreYellow = 0;
 
     this.sound1 = game.add.audio('sound1');
-    this.sound1 = game.add.audio('sound1');
 
+    this.timeCheck = game.time.now;
 
-    this.colours = [
-      '0xFF0000',
-      '0x00FF00',
-      '0x0000FF',
-      '0xFFFF00',
-      '0xFF00FF',
-      '0x00FFFF',
-      '0xFFFFFF'
-    ];
-    this.graphicRound = game.add.graphics(0, 0);
-    this.graphicRound.show = false;
-    // this.graphicRoundDelay = 0;
-
-    var soundTest = game.add.audio('sound1');
-
-
-    this.balloon = Balloon({
-      x: 300,
-      y: 500,
-      colour: '0xFF0000',
-      // Math.floor(Math.random() * (max - min)) + min;
-      visibility: false
-    });
+    this.balloons = [];
 
     var that = this;
 
     game.input.keyboard.onUpCallback = function(e) {
 
 
-      if(e.keyCode === Phaser.Keyboard.RIGHT) {
-        soundTest.play();
+      if(e.keyCode === Phaser.Keyboard.LEFT) {
 
-        if (!that.balloon.visibility) {
-          that.balloon.visibility = true;
-        } else {
-          var random = Math.floor(Math.random() * that.colours.length);
+        that.sound1.play();
 
-
-          console.log('RANDOM : ' + random);
-
-          that.balloon.visibility = false;
-          that.balloon.colour = that.colours[random];
+        for (var i = that.balloons.length - 1; i >= 0; i--) {
+          var balloon = that.balloons[i];
+          if (balloon.colour === '0xFF0000') {
+            balloon.graphics.clear();
+          }
         }
       }
+
+      if(e.keyCode === Phaser.Keyboard.RIGHT) {
+
+        that.sound1.play();
+
+        for (var i = that.balloons.length - 1; i >= 0; i--) {
+          var balloon = that.balloons[i];
+          if (balloon.colour === '0xFFFF00') {
+            balloon.graphics.clear();
+          }
+        }
+      }
+
+      if(e.keyCode === Phaser.Keyboard.SPACEBAR) {
+
+        that.sound1.play();
+
+        for (var i = that.balloons.length - 1; i >= 0; i--) {
+          var balloon = that.balloons[i];
+          if (balloon.colour === '0x0000FF') {
+            balloon.graphics.clear();
+          }
+        }
+      }
+
     };
 
 
@@ -108,15 +107,21 @@ module.exports = {
 
   update: function () {
 
-    if (this.balloon.visibility) {
-      this.graphicRound.beginFill(this.balloon.colour, 1);
-      this.graphicRound.drawCircle(this.balloon.x, this.balloon.y, 100); 
-    } else {
-      this.graphicRound.clear();
+    if (game.time.now - this.timeCheck > 3000) {
+      this.timeCheck = game.time.now;
+
+      var graphicsBalloon = game.add.graphics(0, 0);
+      var balloon = Balloon({
+        maxX: game.width,
+        maxY: game.height,
+        graphics: graphicsBalloon
+      });
+
+      graphicsBalloon.beginFill(balloon.colour, 1);
+      graphicsBalloon.drawCircle(balloon.x, balloon.y, 100);
+
+      this.balloons.push(balloon);
     }
-
-    // graphics.lineStyle(2, 0xffd900, 1);
-
 
 
     // if (this.gamepad.left.isDown) {
@@ -139,13 +144,6 @@ module.exports = {
     // }
 
   },
-
-  // actionColor: function(e) {
-
-  //   if () {
-
-  //   }
-  // },
 
   increaseYellow: function () {
     this.scoreYellow++;
