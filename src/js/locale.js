@@ -11,7 +11,9 @@ module.exports = {
     "mainGame": {
       "labelScore": "Score : ",
       "labelGameOver": "GAME OVER",
-      "labelPause": "PAUSE"
+      "labelPause": "PAUSE",
+      "labelBallonsLost": "Ballons lost : ",
+      "labelErrors": "Errors : "
     }
   },
   "fr": {
@@ -22,7 +24,9 @@ module.exports = {
     "mainGame": {
       "labelScore": "Score : ",
       "labelGameOver": "PARTIE TERMINÉE",
-      "labelPause": "PAUSE"
+      "labelPause": "PAUSE",
+      "labelBallonsLost": "Ballons perdus : ",
+      "labelErrors": "Erreurs : "
     }
   }
 };

@@ -23,13 +23,18 @@ module.exports = {
 
 
 
+
+
     this.gameInterrupted = false;
 
     this.scoreBlue = 0;
     this.scoreRed = 0;
     this.scoreYellow = 0;
 
-    this.scoreLife = 3;
+    this.numErrors = 0;
+    this.maxErrors = 3;
+    this.numBalloonsLost = 0;
+    this.maxBalloonsLost = 3;
 
     this.sound1 = game.add.audio('sound1');
 
@@ -41,36 +46,23 @@ module.exports = {
 
     this.balloons = [];
 
+    this.txtNumBalloonLost = this.add.text(10, 10, localisation[game.language].mainGame.labelBallonsLost + this.numBalloonsLost, { fontSize: '32px', fill: '#fff' });
+    this.txtNumErrors = this.add.text(10, 40, localisation[game.language].mainGame.labelErrors + this.numErrors, { fontSize: '32px', fill: '#fff' });
+
+
+
+
     var that = this;
 
+    // Mapping keyboard events
     game.input.keyboard.onUpCallback = function(e) {
 
       if(e.keyCode === Phaser.Keyboard.LEFT) {
-
-        that.sound1.play();
-
-        for (var i = that.balloons.length - 1; i >= 0; i--) {
-          var balloon = that.balloons[i];
-          if (balloon.colour === '0xFF0000') {
-            balloon.graphics.clear();
-            that.balloons.splice(i, 1);
-            that.scoreRed++;
-          }
-        }
+        that.checkColour('0xFF0000');
       }
 
       if(e.keyCode === Phaser.Keyboard.RIGHT) {
-
-        that.sound1.play();
-
-        for (var i = that.balloons.length - 1; i >= 0; i--) {
-          var balloon = that.balloons[i];
-          if (balloon.colour === '0xFFFF00') {
-            balloon.graphics.clear();
-            that.balloons.splice(i, 1);
-            that.scoreYellow++;
-          }
-        }
+        that.checkColour('0xFFFF00');
       }
 
       if(e.keyCode === Phaser.Keyboard.SPACEBAR) {
@@ -78,21 +70,11 @@ module.exports = {
       }
     };
 
+    // Mapping mouse events
     game.input.mouse.onMouseDown = function (e) {
-
-      that.sound1.play();
-
-      for (var i = that.balloons.length - 1; i >= 0; i--) {
-        var balloon = that.balloons[i];
-        if (balloon.colour === '0x0000FF') {
-          balloon.graphics.clear();
-          that.balloons.splice(i, 1);
-          that.scoreBlue++;
-        }
-      }
+      that.checkColour('0x0000FF');
     };
 
-    this.txtScoreLife = this.add.text(10, 10, localisation[game.language].mainGame.labelScore + this.scoreLife, { fontSize: '32px', fill: '#fff' });
 
   },
 
@@ -102,8 +84,14 @@ module.exports = {
     if (this.gameInterrupted) {
 
     } else {
+      // Game over
+      if (this.numBalloonsLost >= this.maxBalloonsLost
+        || this.numErrors >= this.maxErrors) {
+        this.gameInterrupted = true;
+        this.showMainText(localisation[game.language].mainGame.labelGameOver);
+      }
       // Game in progress
-      if (this.scoreLife > 0) {
+      else {
 
         var timeNow = game.time.now;
 
@@ -130,17 +118,37 @@ module.exports = {
           if (timeNow - balloon.time > this.timeAction) {
             balloon.graphics.clear();
             this.balloons.splice(i, 1);
-            this.scoreLife--;
-            this.txtScoreLife.text = localisation[game.language].mainGame.labelScore + this.scoreLife;
+            this.numBalloonsLost++;
+            this.txtNumBalloonLost.text = localisation[game.language].mainGame.labelBallonsLost + this.numBalloonsLost;
           }
         };
       }
-      // Game over
-      else {
+    }
 
-        this.gameInterrupted = true;
+  },
 
-        this.showMainText(localisation[game.language].mainGame.labelGameOver);
+  checkColour: function (colour) {
+
+    if (!this.gameInterrupted) {
+      
+      this.sound1.play();
+
+      var pushError = true;
+
+      for (var i = this.balloons.length - 1; i >= 0; i--) {
+        var balloon = this.balloons[i];
+        if (balloon.colour === colour) {
+          balloon.graphics.clear();
+          this.balloons.splice(i, 1);
+          this.scoreBlue++;
+
+          pushError = false;
+        }
+      }
+
+      if (pushError) {
+        this.numErrors++;
+        this.txtNumErrors.text = localisation[game.language].mainGame.labelErrors + this.numErrors;
       }
     }
 
