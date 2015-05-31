@@ -9,7 +9,9 @@ module.exports = {
       "labelStart": "START"
     },
     "mainGame": {
-      "labelScore": "Score : "
+      "labelScore": "Score : ",
+      "labelGameOver": "GAME OVER",
+      "labelPause": "PAUSE"
     }
   },
   "fr": {
@@ -18,7 +20,9 @@ module.exports = {
       "labelStart": "COMMENCER"
     },
     "mainGame": {
-      "labelScore": "Score : "
+      "labelScore": "Score : ",
+      "labelGameOver": "PARTIE TERMINÉE",
+      "labelPause": "PAUSE"
     }
   }
 };

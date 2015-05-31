@@ -20,7 +20,7 @@ paths = {
   assets: 'src/assets/**/*',
   css:    'src/css/*.css',
   libs:   [
-    'src/bower_components/phaser-official/build/custom/phaser-arcade-physics.min.js'
+    'src/bower_components/phaser-official/build/phaser.min.js'
   ],
   js:     ['src/js/**/*.js'],
   dist:   './dist/'
@@ -38,7 +38,7 @@ gulp.task('copy-assets', ['clean'], function () {
 
 gulp.task('copy-vendor', ['clean'], function () {
   gulp.src(paths.libs)
-    .pipe(gulp.dest(paths.dist))
+    .pipe(gulp.dest(paths.dist + '/js'))
     .on('error', gutil.log);
 });
 

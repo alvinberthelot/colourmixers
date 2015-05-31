@@ -12,20 +12,38 @@ module.exports = {
   create: function () {
 
 
+    // this.labels = initLabels();
+
+
+    var x = game.width / 2,
+        y = game.height / 2;
+    this.txtMain = this.add.bitmapText(x, y, 'minecraftia');
+    this.txtMain.align = 'center';
+
+
+
+
+    this.gameInterrupted = false;
+
     this.scoreBlue = 0;
     this.scoreRed = 0;
     this.scoreYellow = 0;
 
+    this.scoreLife = 3;
+
     this.sound1 = game.add.audio('sound1');
 
+
+    this.timeOnPause = 0;
     this.timeCheck = game.time.now;
+    this.timeAction = 3000;
+    this.timeBalloon = this.timeAction / 2;
 
     this.balloons = [];
 
     var that = this;
 
     game.input.keyboard.onUpCallback = function(e) {
-
 
       if(e.keyCode === Phaser.Keyboard.LEFT) {
 
@@ -35,6 +53,8 @@ module.exports = {
           var balloon = that.balloons[i];
           if (balloon.colour === '0xFF0000') {
             balloon.graphics.clear();
+            that.balloons.splice(i, 1);
+            that.scoreRed++;
           }
         }
       }
@@ -47,102 +67,119 @@ module.exports = {
           var balloon = that.balloons[i];
           if (balloon.colour === '0xFFFF00') {
             balloon.graphics.clear();
+            that.balloons.splice(i, 1);
+            that.scoreYellow++;
           }
         }
       }
 
       if(e.keyCode === Phaser.Keyboard.SPACEBAR) {
-
-        that.sound1.play();
-
-        for (var i = that.balloons.length - 1; i >= 0; i--) {
-          var balloon = that.balloons[i];
-          if (balloon.colour === '0x0000FF') {
-            balloon.graphics.clear();
-          }
-        }
+        that.gameInterrupted ? that.onResume() : that.onPause();
       }
-
     };
 
+    game.input.mouse.onMouseDown = function (e) {
 
+      that.sound1.play();
 
+      for (var i = that.balloons.length - 1; i >= 0; i--) {
+        var balloon = that.balloons[i];
+        if (balloon.colour === '0x0000FF') {
+          balloon.graphics.clear();
+          that.balloons.splice(i, 1);
+          that.scoreBlue++;
+        }
+      }
+    };
 
-
-    // var x = 20/*this.game.width / 2*/,
-    //   y = this.game.height / 4;
-
-    // this.colourBlue = this.add.sprite(x, y, 'colourBlue');
-    // this.scoreTextBlue = this.add.text(x + 100, y, localisation[game.language].mainGame.labelScore + '0', { fontSize: '32px', fill: '#fff' });
-
-    // this.colourRed = this.add.sprite(x, y * 2, 'colourRed');
-    // this.scoreTextRed = this.add.text(x + 100, y * 2, localisation[game.language].mainGame.labelScore + '0', { fontSize: '32px', fill: '#fff' });
-
-    // this.colourYellow = this.add.sprite(x, y * 3, 'colourYellow');
-    // this.scoreTextYellow = this.add.text(x + 100, y * 3, localisation[game.language].mainGame.labelScore + '0', { fontSize: '32px', fill: '#fff' });
-
-
-
-
-    // game.input.keyboard.addKeyCapture([Phaser.Keyboard.SPACEBAR]);
-    // var spaceBarKey = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-    // spaceBarKey.onDown.add(this.increaseBlue, this);
-
-    // // game.input.keyboard.addKeyCapture([Phaser.Keyboard.RIGHT]);
-    // // var rightKey = this.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
-    // // rightKey.onDown.add(this.increaseYellow, this);
-
-    // this.gamepad = game.input.keyboard.createCursorKeys();
-
-    // this.input.onDown.add(this.onInputDown, this);
-
-
-
-    // game.stage.backgroundColor = '#fff';
-
-    // this.labelTitle = new Label(game.width * 0.5, game.height * 0.5, localisation[game.language].mainGame.labelTitle);
-    // game.add.existing(this.labelTitle);
+    this.txtScoreLife = this.add.text(10, 10, localisation[game.language].mainGame.labelScore + this.scoreLife, { fontSize: '32px', fill: '#fff' });
 
   },
 
   update: function () {
 
-    if (game.time.now - this.timeCheck > 3000) {
-      this.timeCheck = game.time.now;
+    // Game interrupted
+    if (this.gameInterrupted) {
 
-      var graphicsBalloon = game.add.graphics(0, 0);
-      var balloon = Balloon({
-        maxX: game.width,
-        maxY: game.height,
-        graphics: graphicsBalloon
-      });
+    } else {
+      // Game in progress
+      if (this.scoreLife > 0) {
 
-      graphicsBalloon.beginFill(balloon.colour, 1);
-      graphicsBalloon.drawCircle(balloon.x, balloon.y, 100);
+        var timeNow = game.time.now;
 
-      this.balloons.push(balloon);
+        if (timeNow - this.timeCheck > this.timeBalloon) {
+          this.timeCheck = timeNow;
+
+          var graphicsBalloon = game.add.graphics(0, 0);
+          var balloon = Balloon({
+            maxX: game.width,
+            maxY: game.height,
+            time: timeNow,
+            graphics: graphicsBalloon
+          });
+
+          graphicsBalloon.beginFill(balloon.colour, 1);
+          graphicsBalloon.drawCircle(balloon.x, balloon.y, 100);
+
+          this.balloons.push(balloon);
+        }
+
+
+        for (var i = this.balloons.length - 1; i >= 0; i--) {
+          var balloon = this.balloons[i];
+          if (timeNow - balloon.time > this.timeAction) {
+            balloon.graphics.clear();
+            this.balloons.splice(i, 1);
+            this.scoreLife--;
+            this.txtScoreLife.text = localisation[game.language].mainGame.labelScore + this.scoreLife;
+          }
+        };
+      }
+      // Game over
+      else {
+
+        this.gameInterrupted = true;
+
+        this.showMainText(localisation[game.language].mainGame.labelGameOver);
+      }
     }
 
+  },
 
-    // if (this.gamepad.left.isDown) {
-    //     this.scoreRed++;
-    //     this.scoreTextRed.text = localisation[game.language].mainGame.labelScore + this.scoreRed;
-    // } else if (this.gamepad.right.isDown) {
-    //     this.scoreYellow++;
-    //     this.scoreTextYellow.text = localisation[game.language].mainGame.labelScore + this.scoreYellow;
+  showMainText: function (text) {
 
-    //     this.sound1.play();
+    this.txtMain.text = text;
+    // FIXME : position horizontale à revoir
+    this.txtMain.x = this.game.width / 2 - this.txtMain.textWidth / 2;
+  },  
 
-    //     if (!this.graphicRound.show) {
-    //       this.graphicRound.beginFill(this.colours[0], 1);
-    //       this.graphicRound.drawCircle(300, 300, 100);
-    //     } else {
-    //       this.graphicRound.clear();
-    //     }
+  onPause: function () {
 
-    //     this.graphicRound.show = !this.graphicRound.show;
-    // }
+    this.gameInterrupted = true;
 
+    var timeNow = game.time.now;
+    // Save moment when the game is on pause
+    this.timeOnPause = timeNow;
+
+    this.showMainText(localisation[game.language].mainGame.labelPause);
+  },
+
+  onResume: function () {
+    
+    this.showMainText('');
+
+    var timeNow = game.time.now;
+    // Calculate duration pause
+    var timeDeltaPause = timeNow - this.timeOnPause;
+    // Increase ballon time
+    for (var i = this.balloons.length - 1; i >= 0; i--) {
+      var balloon = this.balloons[i];
+      balloon.time += timeDeltaPause;
+    };
+    // 
+    this.timeCheck += timeDeltaPause;
+
+    this.gameInterrupted = false;
   },
 
   increaseYellow: function () {

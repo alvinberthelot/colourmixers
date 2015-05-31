@@ -35,6 +35,7 @@ var Balloon = function (config) {
   var o = {};
   o.x = Math.floor(Math.random() * config.maxX);
   o.y = Math.floor(Math.random() * config.maxY);
+  o.time = config.time;
   o.graphics = config.graphics;
 
 
