@@ -21,7 +21,7 @@ module.exports = {
     this.txtMain.align = 'center';
 
 
-
+    this.colours = this.initColours();
 
 
 
@@ -48,6 +48,7 @@ module.exports = {
 
     this.txtNumBalloonLost = this.add.text(10, 10, localisation[game.language].mainGame.labelBallonsLost + this.numBalloonsLost, { fontSize: '32px', fill: '#fff' });
     this.txtNumErrors = this.add.text(10, 40, localisation[game.language].mainGame.labelErrors + this.numErrors, { fontSize: '32px', fill: '#fff' });
+    this.txtScore = this.add.text(10, 560, localisation[game.language].mainGame.labelScore + '0', { fontSize: '32px', fill: '#fff' });
 
 
 
@@ -58,11 +59,11 @@ module.exports = {
     game.input.keyboard.onUpCallback = function(e) {
 
       if(e.keyCode === Phaser.Keyboard.LEFT) {
-        that.checkColour('0xFF0000');
+        that.checkColour(that.colours.red);
       }
 
       if(e.keyCode === Phaser.Keyboard.RIGHT) {
-        that.checkColour('0xFFFF00');
+        that.checkColour(that.colours.yellow);
       }
 
       if(e.keyCode === Phaser.Keyboard.SPACEBAR) {
@@ -72,7 +73,7 @@ module.exports = {
 
     // Mapping mouse events
     game.input.mouse.onMouseDown = function (e) {
-      that.checkColour('0x0000FF');
+      that.checkColour(that.colours.blue);
     };
 
 
@@ -127,20 +128,48 @@ module.exports = {
 
   },
 
+  initColours: function () {
+    var colours = {};
+
+    colours.red = {};
+    colours.red.codes = ['0xFF0000'];
+    colours.red.score = 0;
+
+    colours.blue = {};
+    colours.blue.codes = ['0x0000FF'];
+    colours.blue.score = 0;
+
+    colours.yellow = {};
+    colours.yellow.codes = ['0xFFFF00'];
+    colours.yellow.score = 0;
+
+    colours.getScore = function () {
+      return colours.red.score + colours.blue.score + colours.yellow.score;
+    }
+
+    return colours;
+  },
+
   checkColour: function (colour) {
 
     if (!this.gameInterrupted) {
-      
+
       this.sound1.play();
 
       var pushError = true;
 
       for (var i = this.balloons.length - 1; i >= 0; i--) {
         var balloon = this.balloons[i];
-        if (balloon.colour === colour) {
+        if (balloon.colour === colour.codes[0]) {
           balloon.graphics.clear();
           this.balloons.splice(i, 1);
-          this.scoreBlue++;
+          colour.score++;
+
+          this.txtScore.text = localisation[game.language].mainGame.labelScore + this.colours.getScore();
+
+          // Increase speed to show balloons
+          // FIXME
+          //this.timeAction-=100;
 
           pushError = false;
         }
